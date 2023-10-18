@@ -3,12 +3,13 @@ using UnityEngine;
 public class LightControl : MonoBehaviour
 {
     private Light myLight;
+    public VRFade vrFade;
 
     private void Start()
     {
         // Get the Light component attached to this GameObject
         myLight = GetComponent<Light>();
-        
+        vrFade.FadeToBlack();
     }
 
 

@@ -14,6 +14,7 @@ public class DoorController : MonoBehaviour
     {
         initialAngle = transform.eulerAngles.y;
         ActivateDoor();
+        
     }
 
     private void Update()
