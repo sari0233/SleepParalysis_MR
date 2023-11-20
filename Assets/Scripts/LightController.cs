@@ -1,24 +1,21 @@
 using UnityEngine;
 using System.Collections;
 
-public class LightControl : MonoBehaviour
+public class LightController : MonoBehaviour
 {
     private Light myLight;
     private float originalIntensity = 1.5f;
-    private float minFlickerDuration = 0.02f; // Minimum time for the flicker duration
-    private float maxFlickerDuration = 0.2f; // Maximum time for the flicker duration
-    private int flickerCount = 5; // Number of times to flicker
+    private float minFlickerDuration = 0.02f;
+    private float maxFlickerDuration = 0.2f;
+    private int flickerCount = 5;
 
-    [Header("Creepy Effect")]
-    public bool useCreepyEffect = true;  // This will appear as a checkbox in the inspector
+    public bool useCreepyEffect = true;
 
     private void Start()
     {
-        // Get the Light component attached to this GameObject
         myLight = GetComponent<Light>();
         originalIntensity = myLight.intensity;
 
-        // Initialize the light state based on checkbox value
         if (useCreepyEffect)
             TurnOnLight();
         else
@@ -27,7 +24,6 @@ public class LightControl : MonoBehaviour
 
     private void OnValidate()
     {
-        // This will ensure the script finds the Light component even in the editor
         if (myLight == null)
             myLight = GetComponent<Light>();
 
@@ -63,16 +59,16 @@ public class LightControl : MonoBehaviour
     {
         for (int i = 0; i < flickerCount; i++)
         {
-            myLight.enabled = !myLight.enabled; // Toggle the light state
-            yield return new WaitForSeconds(Random.Range(minFlickerDuration, maxFlickerDuration)); // Wait for a random duration
+            myLight.enabled = !myLight.enabled;
+            yield return new WaitForSeconds(Random.Range(minFlickerDuration, maxFlickerDuration));
         }
 
         if (turningOn)
         {
             myLight.enabled = true;
-            myLight.intensity = originalIntensity * 0.5f; // Dim the light slightly for added effect
-            yield return new WaitForSeconds(0.5f); // Wait for half a second
-            myLight.intensity = originalIntensity; // Restore original intensity
+            myLight.intensity = originalIntensity * 0.5f;
+            yield return new WaitForSeconds(0.5f);
+            myLight.intensity = originalIntensity;
         }
         else
         {

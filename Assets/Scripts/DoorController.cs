@@ -9,15 +9,11 @@ public class DoorController : MonoBehaviour
     private float initialAngle = 0;
     private float slamShutSpeed = 250f;
 
-    [Header("Door Control")]
     public bool isOpen = false;
 
-    [Header("Audio")]
-    public AudioSource audioSource;
     public AudioClip doorSlamClip;
     public AudioClip doorOpenClip;
 
-    [Header("Door Opening Speed Curve")]
     public AnimationCurve openingSpeedCurve;
     private float openingTimeElapsed = 0.0f;
     private float totalOpeningTime = 2.0f;  // Total time for door to open, adjust as needed.
@@ -40,20 +36,19 @@ public class DoorController : MonoBehaviour
         HandleDoorMovement();
     }
 
-    private void HandleDoorMovement()
+    public void HandleDoorMovement()
     {
         switch (doorState)
         {
             case DoorState.Opening:
                 if (!hasPlayedOpenSound)
                 {
-                    audioSource.PlayOneShot(doorOpenClip);
                     hasPlayedOpenSound = true;
                 }
 
                 openingTimeElapsed += Time.deltaTime;
                 float t = openingTimeElapsed / totalOpeningTime;
-                float currentSpeed = openingSpeedCurve.Evaluate(t) * 90f;  // Assuming 90° total rotation
+                float currentSpeed = openingSpeedCurve.Evaluate(t) * 90f;  // Assuming 90ï¿½ total rotation
                 transform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(transform.eulerAngles.y, initialAngle + openAngle, currentSpeed * Time.deltaTime);
 
                 if (Mathf.Approximately(transform.eulerAngles.y, initialAngle + openAngle))
@@ -68,7 +63,6 @@ public class DoorController : MonoBehaviour
 
                 if (!hasPlayedSlamSound && Mathf.Abs(transform.eulerAngles.y - initialAngle) < 25f)
                 {
-                    audioSource.PlayOneShot(doorSlamClip);
                     hasPlayedSlamSound = true;
                 }
 
@@ -81,7 +75,7 @@ public class DoorController : MonoBehaviour
         }
     }
 
-    private void HandleDoorAction()
+    public void HandleDoorAction()
     {
         if (isOpen && (doorState == DoorState.Closed || doorState == DoorState.Closing))
         {
