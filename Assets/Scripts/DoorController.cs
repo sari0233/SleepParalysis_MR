@@ -5,85 +5,45 @@ public class DoorController : MonoBehaviour
     private enum DoorState { Closed, Opening, Opened, Closing }
     private DoorState doorState = DoorState.Closed;
 
-    private float openAngle = -90f;
+    private float openAngle = -30f; // Adjust the open angle to rotate the door
     private float initialAngle = 0;
-    private float slamShutSpeed = 250f;
-
-    public bool isOpen = false;
-
-    public AudioClip doorSlamClip;
-    public AudioClip doorOpenClip;
-
-    public AnimationCurve openingSpeedCurve;
-    private float openingTimeElapsed = 0.0f;
-    private float totalOpeningTime = 2.0f;  // Total time for door to open, adjust as needed.
-
-    private bool hasPlayedSlamSound = false;
-    private bool hasPlayedOpenSound = false;
+    private float creakOpenSpeed = 10f;
 
     private void Start()
     {
         initialAngle = transform.eulerAngles.y;
-    }
-
-    private void OnValidate()
-    {
-        HandleDoorAction();
+        // Initialize other components or settings as needed
     }
 
     private void Update()
     {
-        HandleDoorMovement();
-    }
-
-    public void HandleDoorMovement()
-    {
         switch (doorState)
         {
             case DoorState.Opening:
-                if (!hasPlayedOpenSound)
-                {
-                    hasPlayedOpenSound = true;
-                }
+                float targetAngle = initialAngle + openAngle;
+                transform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetAngle, creakOpenSpeed * Time.deltaTime);
 
-                openingTimeElapsed += Time.deltaTime;
-                float t = openingTimeElapsed / totalOpeningTime;
-                float currentSpeed = openingSpeedCurve.Evaluate(t) * 90f;  // Assuming 90� total rotation
-                transform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(transform.eulerAngles.y, initialAngle + openAngle, currentSpeed * Time.deltaTime);
-
-                if (Mathf.Approximately(transform.eulerAngles.y, initialAngle + openAngle))
+                if (Mathf.Approximately(transform.eulerAngles.y, targetAngle))
                 {
                     doorState = DoorState.Opened;
-                    openingTimeElapsed = 0; // Reset for next time door opens
                 }
                 break;
 
+            case DoorState.Opened:
+                // Add any logic to be performed when the door is fully opened
+                break;
+
             case DoorState.Closing:
-                transform.eulerAngles = Vector3.up * Mathf.MoveTowardsAngle(transform.eulerAngles.y, initialAngle, slamShutSpeed * Time.deltaTime);
-
-                if (!hasPlayedSlamSound && Mathf.Abs(transform.eulerAngles.y - initialAngle) < 25f)
-                {
-                    hasPlayedSlamSound = true;
-                }
-
-                if (Mathf.Approximately(transform.eulerAngles.y, initialAngle))
-                {
-                    doorState = DoorState.Closed;
-                    hasPlayedSlamSound = false;
-                }
+                // Add any logic to be performed when the door is closing
                 break;
         }
     }
 
-    public void HandleDoorAction()
+    public void ActivateDoor()
     {
-        if (isOpen && (doorState == DoorState.Closed || doorState == DoorState.Closing))
+        if (doorState == DoorState.Closed)
         {
             doorState = DoorState.Opening;
-        }
-        else if (!isOpen && (doorState == DoorState.Opened || doorState == DoorState.Opening))
-        {
-            doorState = DoorState.Closing;
         }
     }
 }

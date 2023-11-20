@@ -9,8 +9,10 @@ public class MainController : MonoBehaviour
     public AudioSource breathingAudio;
     public AudioSource staticAndHummingAudio;
     public AudioSource doorCreakAudio;
+    public AudioSource footstepsAudio; // Reference to the AudioSource for footsteps
     public DoorController doorController;
 
+    public float roomFadeDuration = 5.0f; // Adjust as needed
 
     void Start()
     {
@@ -31,11 +33,21 @@ public class MainController : MonoBehaviour
         // Play breathing audio for 15 seconds
         yield return StartCoroutine(PlayAudioForDuration(breathingAudio, 15.0f));
 
-        // Play static and humming sounds simultaneously
-        PlayStaticAndHummingAudio();
+        // Play static and humming audio
+        yield return StartCoroutine(PlayAudioForDuration(staticAndHummingAudio, 10.0f));
 
         // Open the door with a slight creak
         yield return StartCoroutine(OpenDoorWithCreak());
+
+        // Play footsteps audio
+        yield return StartCoroutine(PlayAudioForDuration(footstepsAudio, 5.0f));
+
+        // Fade back to the usual state
+        yield return StartCoroutine(FadeToUsualState());
+
+        // Turn on lights
+        lightControl.TurnOnLight();
+
     }
 
     IEnumerator FadeToBlack(float duration)
@@ -47,14 +59,6 @@ public class MainController : MonoBehaviour
             timer += Time.deltaTime;
             blackCanvas.alpha = Mathf.Lerp(0, 1, timer / duration);
             yield return null;
-        }
-    }
-
-    void PlayStaticAndHummingAudio()
-    {
-        if (staticAndHummingAudio != null)
-        {
-            staticAndHummingAudio.Play();
         }
     }
 
@@ -77,16 +81,26 @@ public class MainController : MonoBehaviour
         if (doorController != null && doorCreakAudio != null)
         {
             // Activate the door, and the DoorController script will handle the opening with a creak
-            doorController.HandleDoorAction();
+            doorController.ActivateDoor();
 
-
-            doorController.HandleDoorMovement();
-
-            // Play the door creak sound
-            doorCreakAudio.Play();
+            // Play the door creak audio
+            StartCoroutine(PlayAudioForDuration(doorCreakAudio, 4));
 
             // Wait for the creak sound to finish before continuing
             yield return new WaitForSeconds(doorCreakAudio.clip.length);
+        }
+    }
+
+    IEnumerator FadeToUsualState()
+    {
+        float timer = 0f;
+        float startAlpha = blackCanvas.alpha;
+
+        while (timer < roomFadeDuration)
+        {
+            timer += Time.deltaTime;
+            blackCanvas.alpha = Mathf.Lerp(startAlpha, 0, timer / roomFadeDuration);
+            yield return null;
         }
     }
 }
