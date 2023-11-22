@@ -5,7 +5,7 @@ public class DoorController : MonoBehaviour
     private enum DoorState { Closed, Opening, Opened, Closing }
     private DoorState doorState = DoorState.Closed;
 
-    private float openAngle = -30f; // Adjust the open angle to rotate the door
+    public float openAngle = -30f; // Adjust the open angle to rotate the door
     private float initialAngle = 0;
     private float creakOpenSpeed = 10f;
 
