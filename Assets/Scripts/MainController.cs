@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class MainController : MonoBehaviour
 {
@@ -16,80 +17,126 @@ public class MainController : MonoBehaviour
     public AudioSource heartBeatAudio1;
     public GameObject tvGameObject;
 
+    public InputActionReference primaryButtonAction; // Drag your PrimaryButtonAction here in the inspector
+
+    private bool primaryButtonPressed = false;
+    private int buttonPressCount = 0;
+
     public float roomFadeDuration = 5.0f; // Adjust as needed
 
     void Start()
     {
+        primaryButtonAction.action.started += OnPrimaryButtonPress;
         StartCoroutine(StartExperience());
+    }
+
+    void OnPrimaryButtonPress(InputAction.CallbackContext context)
+    {
+        primaryButtonPressed = true;
     }
 
     IEnumerator StartExperience()
     {
-        // Turn off lights slightly
+        while (true)
+        {
+            yield return null;
+
+            if (primaryButtonPressed)
+            {
+                primaryButtonPressed = false;
+
+                switch (buttonPressCount)
+                {
+                    case 0:
+                        yield return StartCoroutine(FirstPressActions());
+                        break;
+                    case 1:
+                        yield return StartCoroutine(SecondPressActions());
+                        break;
+                    case 2:
+                        yield return StartCoroutine(ThirdPressActions());
+                        break;
+                    case 3:
+                        yield return StartCoroutine(FourthPressActions());
+                        break;
+                    case 4:
+                        yield return StartCoroutine(FifthPressActions());
+                        break;
+                    case 5:
+                        yield return StartCoroutine(SixthPressActions());
+                        break;
+                    case 6:
+                        yield return StartCoroutine(SeventhPressActions());
+                        break;
+                    // Add more cases as needed
+                    default:
+                        Debug.Log("No more actions defined for additional button presses.");
+                        break;
+                }
+
+                // Increment the button press counter
+                buttonPressCount++;
+            }
+        }
+    }
+
+    // Define your actions for each press
+    IEnumerator FirstPressActions()
+    {
+        Debug.Log("First queue started: Turn lights off and Fade to black");
         lightControl.TurnOffLight();
-
-        // Wait for a short duration before starting the fade to black
         yield return new WaitForSeconds(2.0f);
-
-        // Fade to black
         yield return StartCoroutine(FadeToBlack(5.0f));
+    }
 
-        // Play breathing audio for 15 seconds
+    IEnumerator SecondPressActions()
+    {
+        Debug.Log("Second queue started: Play breathing audio and static + humming audio + open door creak");
         yield return StartCoroutine(PlayAudioForDuration(breathingAudio, 15.0f));
-
-        // Play static and humming audio
         yield return StartCoroutine(PlayAudiosForDuration(staticAudio, hummingAudio, 10.0f));
-
-        // Open the door with a slight creak
         yield return StartCoroutine(OpenDoorWithCreak());
 
-        // Fade back to the usual state
-        yield return StartCoroutine(FadeToUsualState());
+    }
 
-        // Turn on lights
+    IEnumerator ThirdPressActions()
+    {
+        Debug.Log("Third queue started: Fade to usual and Turn on lights");
+        yield return StartCoroutine(FadeToUsualState());
         lightControl.TurnOnLight();
+    }
 
-        // Play footsteps audio
+    IEnumerator FourthPressActions()
+    {
+        Debug.Log("Fourth queue started: Play footsteps and heartbeat audio");
         yield return StartCoroutine(PlayAudioForDuration(footstepsAudio, 5.0f));
-
-        // Play heartbeat audio - 2
         yield return StartCoroutine(PlayAudioForDuration(heartBeatAudio2, 15.0f));
+    }
 
-        // Fade to black
+    IEnumerator FifthPressActions()
+    {
+        Debug.Log("Fifth queue started: FadeToBlack and play breathing + static audio");
         yield return StartCoroutine(FadeToBlack(5.0f));
-
-        // Play breathing + heartbeat1 audio together
         yield return StartCoroutine(PlayAudiosForDuration(breathingAudio, heartBeatAudio1, 25.0f));
-
-        // Play static humming audio with volume 3 - 2
         yield return StartCoroutine(PlayAudiosForDuration(staticAudio, hummingAudio, 10.0f));
+    }
 
-        // Turn TV on
+    IEnumerator SixthPressActions()
+    {
+        Debug.Log("Sixth queue started: Play video on TV and FadeToUsualState and Stop video on TV and fade to black");
         PlayVideoOnTV();
-
-        // Fade to room
         yield return StartCoroutine(FadeToUsualState());
-
         yield return new WaitForSeconds(10.0f);
-
-        // Turn TV off
         StopVideoOnTV();
-
-        // Fade to black
         yield return StartCoroutine(FadeToBlack(5.0f));
+    }
 
-        // Play heartbeat audio - 2
+    IEnumerator SeventhPressActions()
+    {
+        Debug.Log("Seventh queue started: play heartbeat audio and fadetousual state");
         yield return StartCoroutine(PlayAudioForDuration(heartBeatAudio2, 15.0f));
-
-
-        // Open door fully
         doorController.openAngle = -90;
         yield return StartCoroutine(OpenDoorWithCreak());
-
-        // Fade to room
         yield return StartCoroutine(FadeToUsualState());
-
-
     }
 
     IEnumerator FadeToBlack(float duration)
@@ -119,7 +166,7 @@ public class MainController : MonoBehaviour
     }
 
 
-    IEnumerator PlayAudiosForDuration(AudioSource audioSource1, AudioSource audioSource2,float duration)
+    IEnumerator PlayAudiosForDuration(AudioSource audioSource1, AudioSource audioSource2, float duration)
     {
         if (audioSource1 != null && audioSource2 != null)
         {
