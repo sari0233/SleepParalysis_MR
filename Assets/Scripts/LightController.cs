@@ -55,7 +55,7 @@ public class LightController : MonoBehaviour
         }
     }
 
-    private IEnumerator CreepyFlicker(bool turningOn)
+    public IEnumerator CreepyFlicker(bool turningOn)
     {
         for (int i = 0; i < flickerCount; i++)
         {
