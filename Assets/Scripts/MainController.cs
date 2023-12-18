@@ -15,6 +15,8 @@ public class MainController : MonoBehaviour
     public DoorController doorController;
     public AudioSource heartBeatAudio2;
     public AudioSource heartBeatAudio1;
+    public AudioSource heartBeatAudio3;
+    public AudioSource heartBeatAudio4;
     public GameObject tvGameObject;
 
     public InputActionReference primaryButtonAction; // Drag your PrimaryButtonAction here in the inspector
@@ -68,6 +70,9 @@ public class MainController : MonoBehaviour
                     case 6:
                         yield return StartCoroutine(SeventhPressActions());
                         break;
+                    case 7:
+                        yield return StartCoroutine(EighthPressActions());
+                        break;
                     // Add more cases as needed
                     default:
                         Debug.Log("No more actions defined for additional button presses.");
@@ -108,7 +113,6 @@ public class MainController : MonoBehaviour
     IEnumerator FourthPressActions()
     {
         Debug.Log("Fourth queue started: Play footsteps and heartbeat audio");
-        yield return StartCoroutine(PlayAudioForDuration(footstepsAudio, 5.0f));
         yield return StartCoroutine(PlayAudioForDuration(heartBeatAudio2, 15.0f));
     }
 
@@ -118,6 +122,7 @@ public class MainController : MonoBehaviour
         yield return StartCoroutine(FadeToBlack(5.0f));
         yield return StartCoroutine(PlayAudiosForDuration(breathingAudio, heartBeatAudio1, 25.0f));
         yield return StartCoroutine(PlayAudiosForDuration(staticAudio, hummingAudio, 10.0f));
+        yield return StartCoroutine(PlayAudioForDuration(footstepsAudio, 5.0f));
     }
 
     IEnumerator SixthPressActions()
@@ -137,6 +142,18 @@ public class MainController : MonoBehaviour
         doorController.openAngle = -90;
         yield return StartCoroutine(OpenDoorWithCreak());
         yield return StartCoroutine(FadeToUsualState());
+    }
+
+    IEnumerator EighthPressActions()
+    {
+        yield return StartCoroutine(PlayAudioForDuration(heartBeatAudio3, 7.0f));
+        lightControl.CreepyFlicker(true);
+    }
+
+    IEnumerator NinthPressActions()
+    {
+        heartBeatAudio3.volume = 0.4f;
+        yield return StartCoroutine(PlayAudioForDuration(heartBeatAudio3, 10.0f));
     }
 
     IEnumerator FadeToBlack(float duration)
