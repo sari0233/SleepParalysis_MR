@@ -18,6 +18,8 @@ public class MainController : MonoBehaviour
     public AudioSource heartBeatAudio3;
     public AudioSource heartBeatAudio4;
     public GameObject tvGameObject;
+    public GameObject clownGameObject;
+    private Animator clownAnimator; // Animator for the Clown
 
     public InputActionReference primaryButtonAction; // Drag your PrimaryButtonAction here in the inspector
 
@@ -30,6 +32,19 @@ public class MainController : MonoBehaviour
     {
         primaryButtonAction.action.started += OnPrimaryButtonPress;
         StartCoroutine(StartExperience());
+
+        if (clownGameObject != null)
+        {
+            clownAnimator = clownGameObject.GetComponent<Animator>();
+            if (clownAnimator == null)
+            {
+                Debug.LogError("Animator component not found on the Clown GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Clown GameObject reference not set.");
+        }
     }
 
     void OnPrimaryButtonPress(InputAction.CallbackContext context)
@@ -51,27 +66,16 @@ public class MainController : MonoBehaviour
                 {
                     case 0:
                         yield return StartCoroutine(FirstPressActions());
-                        break;
-                    case 1:
                         yield return StartCoroutine(SecondPressActions());
-                        break;
-                    case 2:
                         yield return StartCoroutine(ThirdPressActions());
-                        break;
-                    case 3:
                         yield return StartCoroutine(FourthPressActions());
-                        break;
-                    case 4:
                         yield return StartCoroutine(FifthPressActions());
-                        break;
-                    case 5:
                         yield return StartCoroutine(SixthPressActions());
-                        break;
-                    case 6:
                         yield return StartCoroutine(SeventhPressActions());
-                        break;
-                    case 7:
                         yield return StartCoroutine(EighthPressActions());
+                    break;
+                    case 1:
+                        yield return StartCoroutine(tenthPressActions());
                         break;
                     // Add more cases as needed
                     default:
@@ -155,6 +159,11 @@ public class MainController : MonoBehaviour
         heartBeatAudio3.volume = 0.4f;
         yield return StartCoroutine(PlayAudioForDuration(heartBeatAudio3, 10.0f));
     }
+    IEnumerator tenthPressActions()
+    {
+        Debug.Log("Ninth queue started: Trigger Clown animation and move forward");
+        yield return StartCoroutine(TriggerClownAnimationAndMove());
+    }
 
     IEnumerator FadeToBlack(float duration)
     {
@@ -227,7 +236,32 @@ public class MainController : MonoBehaviour
         }
     }
 
-    void PlayVideoOnTV()
+    IEnumerator TriggerClownAnimationAndMove()
+    {
+        if (clownAnimator != null)
+        {
+            // Trigger the animation
+            clownAnimator.SetTrigger("OutOfTv"); // Replace with your actual trigger name
+
+            // Move the Clown GameObject forward
+            Vector3 startPosition = clownGameObject.transform.position;
+            Vector3 endPosition = startPosition + clownGameObject.transform.forward * 5f; // Adjust distance as needed
+
+            float duration = 5.0f; // Movement duration
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                clownGameObject.transform.position = Vector3.Lerp(startPosition, endPosition, elapsed / duration);
+                yield return null;
+            }
+        }
+        
+    }
+
+
+void PlayVideoOnTV()
     {
         // Assuming you have a reference to the PlayVideo script on the TV GameObject
         PlayVideo playVideoScript = tvGameObject.GetComponent<PlayVideo>();
