@@ -24,7 +24,7 @@ public class MainController : MonoBehaviour
     public InputActionReference primaryButtonAction; // Drag your PrimaryButtonAction here in the inspector
 
     private bool primaryButtonPressed = false;
-    private int buttonPressCount = 0;
+    public int buttonPressCount = 0;
 
     public float roomFadeDuration = 5.0f; // Adjust as needed
 
@@ -77,6 +77,13 @@ public class MainController : MonoBehaviour
                     case 1:
                         yield return StartCoroutine(tenthPressActions());
                         break;
+                    case 2:
+                        yield return StartCoroutine(EleventhPressActions());
+                        break;
+                    case 3:
+                        yield return StartCoroutine(TwelfthPressActions());
+                        break;
+
                     // Add more cases as needed
                     default:
                         Debug.Log("No more actions defined for additional button presses.");
@@ -85,6 +92,7 @@ public class MainController : MonoBehaviour
 
                 // Increment the button press counter
                 buttonPressCount++;
+                Debug.Log(buttonPressCount);
             }
         }
     }
@@ -165,8 +173,22 @@ public class MainController : MonoBehaviour
         yield return StartCoroutine(TriggerClownAnimationAndMove());
     }
 
+    IEnumerator EleventhPressActions()
+    {
+        yield return StartCoroutine(FadeToBlack(5.0f));
+        clownGameObject.transform.position = new Vector3(1.2f, 0.7f, -0.55f);
+    }
+    IEnumerator TwelfthPressActions()
+    {
+        yield return StartCoroutine(FadeToUsualState());
+
+        clownAnimator.SetTrigger("removeGlasses");
+    }
+
+
     IEnumerator FadeToBlack(float duration)
     {
+        Debug.Log("Fading to black...");
         float timer = 0f;
 
         while (timer < duration)
@@ -175,6 +197,7 @@ public class MainController : MonoBehaviour
             blackCanvas.alpha = Mathf.Lerp(0, 1, timer / duration);
             yield return null;
         }
+
     }
 
     IEnumerator PlayAudioForDuration(AudioSource audioSource, float duration)
@@ -241,27 +264,36 @@ public class MainController : MonoBehaviour
         if (clownAnimator != null)
         {
             // Trigger the animation
-            clownAnimator.SetTrigger("OutOfTv"); // Replace with your actual trigger name
+            clownAnimator.SetTrigger("OutOfTv" ); // Replace with your actual trigger name
 
-            // Move the Clown GameObject forward
-            Vector3 startPosition = clownGameObject.transform.position;
-            Vector3 endPosition = startPosition + clownGameObject.transform.forward * 5f; // Adjust distance as needed
+            float animationDuration = 3500.0f; // Duration of the animation in seconds
+            
 
-            float duration = 5.0f; // Movement duration
-            float elapsed = 0f;
+            float startTime = Time.time;
 
-            while (elapsed < duration)
+            while (Time.time - startTime < 20f)
             {
-                elapsed += Time.deltaTime;
-                clownGameObject.transform.position = Vector3.Lerp(startPosition, endPosition, elapsed / duration);
+                // Calculate the normalized time for animation
+                float animationTime = (Time.time - startTime) / animationDuration;
+
+                // Interpolate the position between start and end points
+                Vector3 startPosition = clownGameObject.transform.position;
+                Vector3 endPosition = new Vector3(0f, 0.67f, 1f);
+                Vector3 currentPosition = Vector3.Lerp(startPosition, endPosition, animationTime);
+
+                // Apply the position to the Clown GameObject
+                clownGameObject.transform.position = currentPosition;
+
                 yield return null;
             }
+
+            // Ensure that the Clown GameObject is at the final position
+            clownGameObject.transform.position = new Vector3(0f, 0.67f, 1f);
         }
-        
-    }
+    } 
 
 
-void PlayVideoOnTV()
+    void PlayVideoOnTV()
     {
         // Assuming you have a reference to the PlayVideo script on the TV GameObject
         PlayVideo playVideoScript = tvGameObject.GetComponent<PlayVideo>();
